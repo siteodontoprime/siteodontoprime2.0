@@ -3789,40 +3789,66 @@
         const prevBtn = document.getElementById(prevId);
         const nextBtn = document.getElementById(nextId);
         const wrapper = document.getElementById(wrapperId);
-        if (!track) return;
+        if (!track || !dotsEl) return;
+
         const perSlide = 4;
         const slides = [];
-        for (let i = 0; i < items.length; i += perSlide)
+        for (let i = 0; i < items.length; i += perSlide) {
           slides.push(items.slice(i, i + perSlide));
+        }
+
         const total = slides.length;
-        let current = 0,
-          startX = 0;
+        let current = 0;
+        let startX = 0;
+        let startY = 0;
+        let isDragging = false;
+        let didDrag = false;
+        let timer = null;
+
         track.innerHTML = "";
+        dotsEl.innerHTML = "";
+
         slides.forEach((group) => {
           const slide = document.createElement("div");
           slide.className = "carousel-slide";
+
           group.forEach((s) => {
-            const item = document.createElement("div");
-            item.className = "carousel-item";
+            const item = document.createElement("button");
+            item.type = "button";
+            item.className = "carousel-item carousel-item--clickable";
             item.innerHTML = `<span class="carousel-item__icon" aria-hidden="true">${s.icon}</span><span class="carousel-item__label">${s.label}</span>`;
+            item.addEventListener("click", (event) => {
+              if (didDrag) {
+                event.preventDefault();
+                event.stopPropagation();
+                return;
+              }
+              const msg = `Olá! Vim pelo site da ${CLINIC} e gostaria de agendar atendimento em ${s.label}.`;
+              window.open(waLink(msg), "_blank", "noreferrer");
+            });
             slide.appendChild(item);
           });
+
           while (slide.children.length < perSlide) {
             const empty = document.createElement("div");
-            empty.className = "carousel-item";
+            empty.className = "carousel-item carousel-item--empty";
             empty.style.opacity = "0";
+            empty.setAttribute("aria-hidden", "true");
             slide.appendChild(empty);
           }
+
           track.appendChild(slide);
         });
-        dotsEl.innerHTML = "";
+
         slides.forEach((_, i) => {
           const d = document.createElement("button");
+          d.type = "button";
           d.className = "cdot" + (i === 0 ? " active" : "");
           d.setAttribute("aria-label", `Página ${i + 1}`);
           d.addEventListener("click", () => goTo(i));
           dotsEl.appendChild(d);
         });
+
         function goTo(idx) {
           current = Math.max(0, Math.min(idx, total - 1));
           track.style.transform = `translateX(-${current * 100}%)`;
@@ -3833,35 +3859,70 @@
           if (prevBtn) prevBtn.disabled = current === 0;
           if (nextBtn) nextBtn.disabled = current === total - 1;
         }
-        prevBtn?.addEventListener("click", () => goTo(current - 1));
-        nextBtn?.addEventListener("click", () => goTo(current + 1));
-        wrapper?.addEventListener(
-          "touchstart",
-          (e) => {
-            startX = e.touches[0].clientX;
-          },
-          { passive: true },
-        );
-        wrapper?.addEventListener(
-          "touchend",
-          (e) => {
-            const dx = e.changedTouches[0].clientX - startX;
-            if (Math.abs(dx) > 40) goTo(dx < 0 ? current + 1 : current - 1);
-          },
-          { passive: true },
-        );
-        goTo(0);
-        let timer = setInterval(() => {
-          if (nextBtn && !nextBtn.disabled) nextBtn.click();
-          else {
-            const dots = dotsEl.querySelectorAll(".cdot");
-            if (dots.length) dots[0].click();
-          }
-        }, 4200);
-        wrapper?.addEventListener("touchstart", () => clearInterval(timer), {
-          once: true,
-          passive: true,
+
+        function stopAuto() {
+          if (timer) clearInterval(timer);
+          timer = null;
+        }
+
+        prevBtn?.addEventListener("click", () => {
+          stopAuto();
+          goTo(current - 1);
         });
+        nextBtn?.addEventListener("click", () => {
+          stopAuto();
+          goTo(current + 1);
+        });
+
+        function point(e) {
+          if (e.touches && e.touches.length) return e.touches[0];
+          if (e.changedTouches && e.changedTouches.length) return e.changedTouches[0];
+          return e;
+        }
+
+        function dragStart(e) {
+          const p = point(e);
+          startX = p.clientX;
+          startY = p.clientY;
+          isDragging = true;
+          didDrag = false;
+          stopAuto();
+        }
+
+        function dragMove(e) {
+          if (!isDragging) return;
+          const p = point(e);
+          const dx = p.clientX - startX;
+          const dy = p.clientY - startY;
+          if (Math.abs(dx) > 12 && Math.abs(dx) > Math.abs(dy)) {
+            didDrag = true;
+            if (e.cancelable) e.preventDefault();
+          }
+        }
+
+        function dragEnd(e) {
+          if (!isDragging) return;
+          isDragging = false;
+          const p = point(e);
+          const dx = p.clientX - startX;
+          const dy = p.clientY - startY;
+          if (Math.abs(dx) > 42 && Math.abs(dx) > Math.abs(dy)) {
+            goTo(dx < 0 ? current + 1 : current - 1);
+          }
+          setTimeout(() => { didDrag = false; }, 80);
+        }
+
+        if (wrapper) {
+          wrapper.addEventListener("touchstart", dragStart, { passive: true });
+          wrapper.addEventListener("touchmove", dragMove, { passive: false });
+          wrapper.addEventListener("touchend", dragEnd, { passive: true });
+          wrapper.addEventListener("mousedown", dragStart);
+          wrapper.addEventListener("mousemove", dragMove);
+          window.addEventListener("mouseup", dragEnd);
+        }
+
+        goTo(0);
+        timer = setInterval(() => goTo(current + 1 >= total ? 0 : current + 1), 5200);
       }
 
       const SPECS = [
@@ -4624,6 +4685,194 @@
   else initSwipeFix();
 })();
 </script>
+
+
+
+<style id="odontoprime-mobile-stable-overrides">
+  /* Carrosséis estáveis: clicáveis + arrastáveis no mobile */
+  .carousel-track-wrapper,
+  .odf-carousel-track-wrap {
+    touch-action: pan-y;
+    cursor: grab;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  .carousel-track-wrapper:active,
+  .odf-carousel-track-wrap:active {
+    cursor: grabbing;
+  }
+
+  .carousel-track,
+  .odf-carousel-track {
+    will-change: transform;
+  }
+
+  .carousel-item--clickable {
+    border: 0;
+    cursor: pointer;
+    font-family: "Outfit", system-ui, sans-serif;
+  }
+
+  .carousel-item--clickable:active {
+    transform: scale(0.985);
+  }
+
+  .carousel-btn,
+  .odf-arrow,
+  .cdot,
+  .odf-dot {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Chatbot mobile otimizado sem perder o visual premium */
+  .oa-list-head--with-back {
+    position: sticky;
+    top: -1px;
+    z-index: 4;
+    background: #fff;
+    padding: 4px 0 10px;
+  }
+
+  .oa-back-inline {
+    width: auto;
+    margin: 0;
+    padding: 10px 13px;
+    border-radius: 999px;
+    background: #eef8fb;
+    color: var(--oa-primary-dark);
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 640px) {
+    .specs-grid-desktop,
+    .odonto-grid-desktop {
+      display: none !important;
+    }
+
+    .specs-carousel,
+    .odonto-carousel {
+      display: block !important;
+    }
+
+    .carousel-track-wrapper,
+    .odf-carousel-track-wrap {
+      overflow: hidden;
+      border-radius: 24px;
+    }
+
+    .carousel-controls,
+    .odf-controls {
+      position: relative;
+      z-index: 3;
+    }
+
+    #oa-root {
+      left: 12px;
+      right: 12px;
+      bottom: 12px;
+      align-items: flex-end;
+      z-index: 9000;
+    }
+
+    #oa-panel {
+      width: 100%;
+      max-width: 100%;
+      max-height: calc(100svh - 92px);
+      border-radius: 24px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .oa-head {
+      padding: 16px 16px 14px;
+      flex-shrink: 0;
+    }
+
+    .oa-logo {
+      width: 48px;
+      height: 48px;
+      border-radius: 16px;
+    }
+
+    .oa-title {
+      font-size: 16px;
+    }
+
+    .oa-status {
+      font-size: 12px;
+      margin-top: 4px;
+    }
+
+    .oa-body {
+      padding: 20px 16px 16px;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+      max-height: calc(100svh - 170px);
+    }
+
+    .oa-question {
+      font-size: 21px;
+      line-height: 1.18;
+      margin-bottom: 8px;
+    }
+
+    .oa-sub {
+      font-size: 14px;
+      margin-bottom: 16px;
+    }
+
+    #oa-content {
+      gap: 10px;
+    }
+
+    .oa-option,
+    .oa-whatsapp-main {
+      padding: 15px 15px;
+      border-radius: 18px;
+      font-size: 15px;
+    }
+
+    .oa-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 13px;
+    }
+
+    .oa-specialty-grid {
+      max-height: none;
+      overflow: visible;
+      padding-right: 0;
+      padding-bottom: 4px;
+    }
+
+    .oa-specialty {
+      padding: 14px 14px;
+      border-radius: 16px;
+      font-size: 14.5px;
+    }
+
+    .oa-back {
+      display: flex !important;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+    }
+
+    .oa-launch {
+      width: 64px;
+      height: 64px;
+      border-radius: 22px;
+    }
+
+    .oa-launch img {
+      width: 30px;
+      height: 30px;
+    }
+  }
+</style>
 
 </body>
 </html>
