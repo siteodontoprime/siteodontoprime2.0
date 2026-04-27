@@ -3921,744 +3921,564 @@
         "odontoWrapper",
       );
     </script>
-    <!-- ══════════ ASSISTENTE VIRTUAL ODONTOPRIME ══════════ -->
-    <style>
-      /* Isolamento total com prefixo ai-assistant- */
-      .ai-assistant-fab {
-        position: fixed;
-        bottom: 28px;
-        right: 28px;
-        z-index: 9001;
-        width: 60px;
-        height: 60px;
-        border-radius: 20px;
-        background: linear-gradient(135deg, #1dcbde 0%, #0ea5b8 100%);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        border: none;
-        box-shadow: 0 10px 36px rgba(29, 203, 222, 0.42);
-        transition:
-          transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1),
-          box-shadow 0.3s ease;
-        outline: none;
-      }
-      .ai-assistant-fab:hover {
-        transform: translateY(-4px) scale(1.07);
-        box-shadow: 0 20px 52px rgba(29, 203, 222, 0.55);
-      }
-      .ai-assistant-fab svg {
-        width: 28px;
-        height: 28px;
-        fill: #fff;
-        transition: transform 0.3s ease;
-      }
-      .ai-assistant-fab-pulse {
-        position: absolute;
-        inset: -5px;
-        border-radius: 25px;
-        background: rgba(29, 203, 222, 0.22);
-        animation: ai-pulse 2.5s ease-in-out infinite;
-        pointer-events: none;
-      }
-      @keyframes ai-pulse {
-        0%,
-        100% {
-          transform: scale(1);
-          opacity: 0.7;
-        }
-        50% {
-          transform: scale(1.18);
-          opacity: 0;
-        }
-      }
+    <!-- ══════════ ASSISTENTE VIRTUAL ODONTOPRIME — PREMIUM CLEAN ══════════ -->
+<style>
+  #oa-root,
+  #oa-root * {
+    box-sizing: border-box;
+  }
 
-      .ai-assistant-window {
-        position: fixed;
-        bottom: 104px;
-        right: 28px;
-        z-index: 9000;
-        width: 370px;
-        max-width: calc(100vw - 32px);
-        background: #fff;
-        border-radius: 24px;
-        border: 1px solid rgba(4, 17, 26, 0.09);
-        box-shadow:
-          0 32px 80px rgba(4, 17, 26, 0.18),
-          0 8px 24px rgba(4, 17, 26, 0.1);
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
-        transform-origin: bottom right;
-        transform: scale(0.88) translateY(16px);
-        opacity: 0;
-        pointer-events: none;
-        transition:
-          transform 0.35s cubic-bezier(0.25, 0.8, 0.25, 1),
-          opacity 0.35s ease;
-        max-height: calc(100svh - 130px);
-      }
-      .ai-assistant-window.ai-open {
-        transform: scale(1) translateY(0);
-        opacity: 1;
-        pointer-events: auto;
-      }
+  #oa-root {
+    --oa-primary: #1dcbde;
+    --oa-primary-dark: #0b8fa0;
+    --oa-ink: #04111a;
+    --oa-muted: #6a7f8b;
+    --oa-soft: #f5f9fb;
+    --oa-line: rgba(4, 17, 26, 0.08);
+    --oa-wa: #25d366;
+    position: fixed;
+    right: 28px;
+    bottom: 28px;
+    z-index: 9000;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 14px;
+    font-family: "Outfit", system-ui, sans-serif;
+  }
 
-      /* Header */
-      .ai-assistant-header {
-        background: linear-gradient(135deg, #04111a 0%, #0d2535 100%);
-        padding: 16px 18px;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        flex-shrink: 0;
-      }
-      .ai-assistant-header-avatar {
-        width: 42px;
-        height: 42px;
-        border-radius: 14px;
-        background: linear-gradient(135deg, #1dcbde, #0ea5b8);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 20px;
-        flex-shrink: 0;
-        box-shadow: 0 4px 14px rgba(29, 203, 222, 0.3);
-      }
-      .ai-assistant-header-info {
-        flex: 1;
-        min-width: 0;
-      }
-      .ai-assistant-header-name {
-        color: #fff;
-        font-family: "Outfit", system-ui, sans-serif;
-        font-weight: 700;
-        font-size: 15px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-      .ai-assistant-header-status {
-        display: flex;
-        align-items: center;
-        gap: 5px;
-        margin-top: 3px;
-      }
-      .ai-assistant-status-dot {
-        width: 7px;
-        height: 7px;
-        border-radius: 50%;
-        background: #1dcbde;
-        box-shadow: 0 0 6px rgba(29, 203, 222, 0.8);
-        animation: ai-pulse-dot 2s ease infinite;
-      }
-      @keyframes ai-pulse-dot {
-        0%,
-        100% {
-          opacity: 1;
-        }
-        50% {
-          opacity: 0.4;
-        }
-      }
-      .ai-assistant-header-status span {
-        color: rgba(255, 255, 255, 0.6);
-        font-family: "Outfit", system-ui, sans-serif;
-        font-size: 12px;
-      }
-      .ai-assistant-header-btns {
-        display: flex;
-        gap: 6px;
-        flex-shrink: 0;
-      }
-      .ai-assistant-icon-btn {
-        width: 34px;
-        height: 34px;
-        border-radius: 10px;
-        background: rgba(255, 255, 255, 0.08);
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        color: rgba(255, 255, 255, 0.7);
-        font-size: 16px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.2s;
-        font-family: system-ui, sans-serif;
-      }
-      .ai-assistant-icon-btn:hover {
-        background: rgba(255, 255, 255, 0.15);
-        color: #fff;
-      }
+  #oa-panel {
+    width: 390px;
+    max-width: calc(100vw - 32px);
+    max-height: calc(100svh - 118px);
+    background: #fff;
+    border: 1px solid var(--oa-line);
+    border-radius: 30px;
+    overflow: hidden;
+    box-shadow: 0 30px 90px rgba(4, 17, 26, 0.18);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(16px) scale(0.96);
+    transform-origin: bottom right;
+    transition: opacity 0.25s ease, transform 0.32s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
 
-      /* Messages */
-      .ai-assistant-messages {
-        flex: 1;
-        overflow-y: auto;
-        padding: 16px 14px;
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        background: #f4f9fb;
-        min-height: 220px;
-        max-height: 360px;
-        scroll-behavior: smooth;
-      }
-      .ai-assistant-messages::-webkit-scrollbar {
-        width: 4px;
-      }
-      .ai-assistant-messages::-webkit-scrollbar-track {
-        background: transparent;
-      }
-      .ai-assistant-messages::-webkit-scrollbar-thumb {
-        background: rgba(29, 203, 222, 0.25);
-        border-radius: 999px;
-      }
+  #oa-root.is-open #oa-panel {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0) scale(1);
+  }
 
-      .ai-msg {
-        display: flex;
-        flex-direction: column;
-        animation: ai-msg-in 0.32s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
-        opacity: 0;
-      }
-      @keyframes ai-msg-in {
-        from {
-          opacity: 0;
-          transform: translateY(10px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-      .ai-msg-bot-row {
-        align-items: flex-start;
-      }
-      .ai-msg-user-row {
-        align-items: flex-end;
-      }
+  .oa-head {
+    padding: 22px 22px 18px;
+    background: #fff;
+    border-bottom: 1px solid var(--oa-line);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
 
-      .ai-bubble {
-        padding: 11px 14px;
-        font-family: "Outfit", system-ui, sans-serif;
-        font-size: 14px;
-        line-height: 1.6;
-        max-width: 88%;
-      }
-      .ai-bubble-bot {
-        background: #fff;
-        color: #04111a;
-        border: 1px solid rgba(4, 17, 26, 0.08);
-        border-radius: 18px 18px 18px 4px;
-        box-shadow: 0 2px 8px rgba(4, 17, 26, 0.05);
-      }
-      .ai-bubble-user {
-        background: linear-gradient(135deg, #1dcbde 0%, #0ea5b8 100%);
-        color: #fff;
-        border-radius: 18px 18px 4px 18px;
-        box-shadow: 0 4px 14px rgba(29, 203, 222, 0.28);
-      }
+  .oa-logo {
+    width: 54px;
+    height: 54px;
+    border-radius: 18px;
+    background: #fff;
+    border: 1px solid var(--oa-line);
+    padding: 7px;
+    object-fit: contain;
+    box-shadow: 0 8px 26px rgba(4, 17, 26, 0.06);
+  }
 
-      /* Typing indicator */
-      .ai-typing {
-        display: flex;
-        align-items: center;
-        gap: 5px;
-        padding: 11px 16px;
-        background: #fff;
-        border: 1px solid rgba(4, 17, 26, 0.08);
-        border-radius: 18px 18px 18px 4px;
-        width: fit-content;
-        box-shadow: 0 2px 8px rgba(4, 17, 26, 0.05);
-      }
-      .ai-typing span {
-        width: 7px;
-        height: 7px;
-        border-radius: 50%;
-        background: #1dcbde;
-        animation: ai-bounce 1.2s ease-in-out infinite;
-      }
-      .ai-typing span:nth-child(2) {
-        animation-delay: 0.18s;
-      }
-      .ai-typing span:nth-child(3) {
-        animation-delay: 0.36s;
-      }
-      @keyframes ai-bounce {
-        0%,
-        60%,
-        100% {
-          transform: translateY(0);
-          opacity: 0.4;
-        }
-        30% {
-          transform: translateY(-5px);
-          opacity: 1;
-        }
-      }
+  .oa-title-wrap {
+    flex: 1;
+    min-width: 0;
+  }
 
-      /* Quick reply chips */
-      .ai-assistant-chips {
-        padding: 10px 12px 12px;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 7px;
-        background: #fff;
-        border-top: 1px solid rgba(4, 17, 26, 0.06);
-        flex-shrink: 0;
-      }
-      .ai-chip {
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-        padding: 7px 13px;
-        border-radius: 999px;
-        border: 1.5px solid rgba(29, 203, 222, 0.3);
-        background: rgba(29, 203, 222, 0.05);
-        color: #0b8fa0;
-        font-family: "Outfit", system-ui, sans-serif;
-        font-size: 12.5px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.22s ease;
-        white-space: nowrap;
-      }
-      .ai-chip:hover {
-        background: #1dcbde;
-        border-color: #1dcbde;
-        color: #fff;
-        transform: translateY(-2px);
-        box-shadow: 0 6px 18px rgba(29, 203, 222, 0.3);
-      }
-      .ai-chip-wa {
-        background: rgba(37, 211, 102, 0.07);
-        border-color: rgba(37, 211, 102, 0.35);
-        color: #0f6e3e;
-      }
-      .ai-chip-wa:hover {
-        background: #25d366;
-        border-color: #25d366;
-        color: #fff;
-        box-shadow: 0 6px 18px rgba(37, 211, 102, 0.3);
-      }
+  .oa-title {
+    color: var(--oa-ink);
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: -0.2px;
+    line-height: 1.1;
+  }
 
-      /* Footer bar */
-      .ai-assistant-footer {
-        padding: 8px 12px 10px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        background: #fff;
-        border-top: 1px solid rgba(4, 17, 26, 0.05);
-        flex-shrink: 0;
-      }
-      .ai-assistant-footer-brand {
-        color: rgba(4, 17, 26, 0.3);
-        font-family: "Outfit", system-ui, sans-serif;
-        font-size: 11px;
-        font-weight: 500;
-      }
-      .ai-assistant-footer-brand strong {
-        color: #0ea5b8;
-      }
-      .ai-assistant-clear-btn {
-        background: none;
-        border: none;
-        color: rgba(4, 17, 26, 0.3);
-        font-family: "Outfit", system-ui, sans-serif;
-        font-size: 11px;
-        cursor: pointer;
-        padding: 4px 8px;
-        border-radius: 6px;
-        transition: all 0.2s;
-      }
-      .ai-assistant-clear-btn:hover {
-        background: rgba(4, 17, 26, 0.05);
-        color: #04111a;
-      }
+  .oa-status {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-top: 6px;
+    color: var(--oa-muted);
+    font-size: 13px;
+    font-weight: 500;
+  }
 
-      @media (max-width: 480px) {
-        .ai-assistant-window {
-          bottom: 0;
-          right: 0;
-          left: 0;
-          max-width: 100%;
-          width: 100%;
-          border-radius: 24px 24px 0 0;
-          transform-origin: bottom center;
-          max-height: 88svh;
-        }
-        .ai-assistant-fab {
-          bottom: 20px;
-          right: 20px;
-        }
-      }
-    </style>
+  .oa-status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--oa-wa);
+    box-shadow: 0 0 0 5px rgba(37, 211, 102, 0.12);
+  }
 
-    <!-- FAB Button -->
-    <button
-      class="ai-assistant-fab"
-      id="ai-fab"
-      aria-label="Abrir assistente virtual"
-      aria-expanded="false"
-      aria-controls="ai-window"
-    >
-      <div class="ai-assistant-fab-pulse" aria-hidden="true"></div>
-      <!-- Ícone de chat -->
-      <svg
-        viewBox="0 0 24 24"
-        xmlns="http://www.w3.org/2000/svg"
-        aria-hidden="true"
-      >
-        <path
-          d="M20 2H4C2.9 2 2 2.9 2 4v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"
-        />
-      </svg>
-    </button>
+  .oa-close {
+    width: 34px;
+    height: 34px;
+    border-radius: 12px;
+    border: 0;
+    background: var(--oa-soft);
+    color: var(--oa-muted);
+    cursor: pointer;
+    font-size: 18px;
+    line-height: 1;
+    transition: 0.2s ease;
+  }
 
-    <!-- Chat Window -->
-    <div
-      class="ai-assistant-window"
-      id="ai-window"
-      role="dialog"
-      aria-label="Assistente virtual Odontoprime"
-      aria-modal="true"
-    >
-      <!-- Header -->
-      <div class="ai-assistant-header">
-        <div class="ai-assistant-header-avatar" aria-hidden="true">🦷</div>
-        <div class="ai-assistant-header-info">
-          <div class="ai-assistant-header-name">Assistente Odontoprime</div>
-          <div class="ai-assistant-header-status">
-            <div class="ai-assistant-status-dot"></div>
-            <span>Online agora · responde rápido</span>
-          </div>
-        </div>
-        <div class="ai-assistant-header-btns">
-          <button
-            class="ai-assistant-icon-btn"
-            id="ai-close-btn"
-            aria-label="Fechar chat"
-            title="Fechar"
-          >
-            ✕
-          </button>
-        </div>
+  .oa-close:hover {
+    background: #eaf4f7;
+    color: var(--oa-ink);
+  }
+
+  .oa-body {
+    padding: 26px 24px 24px;
+  }
+
+  .oa-question {
+    color: var(--oa-ink);
+    font-size: 24px;
+    line-height: 1.16;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin-bottom: 10px;
+  }
+
+  .oa-sub {
+    color: var(--oa-muted);
+    font-size: 15px;
+    line-height: 1.55;
+    margin-bottom: 24px;
+  }
+
+  #oa-content {
+    display: grid;
+    gap: 12px;
+  }
+
+  .oa-option,
+  .oa-back,
+  .oa-whatsapp-main {
+    width: 100%;
+    border: 0;
+    cursor: pointer;
+    font-family: "Outfit", system-ui, sans-serif;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 17px 18px;
+    border-radius: 20px;
+    background: var(--oa-soft);
+    color: var(--oa-ink);
+    font-size: 16px;
+    font-weight: 700;
+    transition: transform 0.18s ease, background 0.18s ease, color 0.18s ease;
+  }
+
+  .oa-option:hover,
+  .oa-back:hover {
+    transform: translateY(-2px);
+    background: #eaf8fb;
+  }
+
+  .oa-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 14px;
+    display: grid;
+    place-items: center;
+    background: #fff;
+    border: 1px solid var(--oa-line);
+    flex-shrink: 0;
+    font-size: 18px;
+  }
+
+  .oa-text {
+    display: grid;
+    gap: 2px;
+  }
+
+  .oa-text small {
+    color: var(--oa-muted);
+    font-size: 12.5px;
+    font-weight: 500;
+    line-height: 1.35;
+  }
+
+  .oa-whatsapp-main {
+    background: linear-gradient(135deg, var(--oa-primary), var(--oa-primary-dark));
+    color: #fff;
+    justify-content: space-between;
+    box-shadow: 0 14px 34px rgba(29, 203, 222, 0.24);
+  }
+
+  .oa-whatsapp-main:hover {
+    transform: translateY(-2px);
+  }
+
+  .oa-whatsapp-main img {
+    width: 23px;
+    height: 23px;
+    object-fit: contain;
+    filter: brightness(0) invert(1);
+  }
+
+  .oa-list-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 4px;
+  }
+
+  .oa-list-title {
+    color: var(--oa-ink);
+    font-size: 17px;
+    font-weight: 800;
+  }
+
+  .oa-back {
+    justify-content: center;
+    padding: 13px 16px;
+    color: var(--oa-muted);
+    font-size: 14px;
+    margin-top: 4px;
+  }
+
+  .oa-specialty-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    max-height: min(420px, calc(100svh - 330px));
+    overflow-y: auto;
+    padding-right: 2px;
+  }
+
+  .oa-specialty-grid::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .oa-specialty-grid::-webkit-scrollbar-thumb {
+    background: rgba(4, 17, 26, 0.15);
+    border-radius: 999px;
+  }
+
+  .oa-specialty {
+    border: 1px solid transparent;
+    background: #f7fbfc;
+    color: var(--oa-ink);
+    border-radius: 17px;
+    padding: 14px 15px;
+    font-family: "Outfit", system-ui, sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: 0.18s ease;
+  }
+
+  .oa-specialty:hover {
+    background: #ebf9fc;
+    border-color: rgba(29, 203, 222, 0.28);
+    transform: translateY(-1px);
+  }
+
+  .oa-specialty span {
+    font-size: 17px;
+  }
+
+
+  .oa-topic-grid { display: grid; gap: 10px; }
+  .oa-topic {
+    width: 100%; border: 1px solid rgba(4,17,26,.07); background: #fff; color: var(--oa-ink);
+    border-radius: 18px; padding: 15px 16px; font-family: "Outfit", system-ui, sans-serif;
+    font-size: 15px; font-weight: 700; cursor: pointer; text-align: left; display: flex; align-items: center; gap: 11px;
+    transition: .18s ease;
+  }
+  .oa-topic:hover { background: #ebf9fc; border-color: rgba(29,203,222,.28); transform: translateY(-1px); }
+  .oa-info-card {
+    background: #fff;
+    border: 1px solid rgba(4,17,26,.07);
+    border-radius: 22px;
+    padding: 18px;
+    display: grid;
+    gap: 12px;
+    box-shadow: 0 8px 24px rgba(4,17,26,.05);
+  }
+  .oa-info-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 16px;
+    display: grid;
+    place-items: center;
+    background: rgba(29,203,222,.09);
+    border: 1px solid rgba(29,203,222,.18);
+    font-size: 21px;
+  }
+  .oa-info-text {
+    color: var(--oa-ink);
+    font-size: 15px;
+    line-height: 1.65;
+    font-weight: 500;
+  }
+
+  .oa-lead-form { display: grid; gap: 12px; }
+  .oa-selected { background: rgba(29,203,222,.1); border: 1px solid rgba(29,203,222,.22); color: var(--oa-primary-dark); border-radius: 999px; padding: 8px 13px; width: fit-content; font-size: 13px; font-weight: 800; }
+  .oa-field { display: grid; gap: 7px; }
+  .oa-field label { color: var(--oa-ink); font-size: 13px; font-weight: 800; }
+  .oa-input { width: 100%; border: 1px solid rgba(4,17,26,.1); background: #f7fbfc; color: var(--oa-ink); border-radius: 16px; padding: 15px 16px; font-family: "Outfit", system-ui, sans-serif; font-size: 15px; outline: none; transition: .18s ease; }
+  .oa-input:focus { border-color: rgba(29,203,222,.55); background: #fff; box-shadow: 0 0 0 4px rgba(29,203,222,.1); }
+  .oa-submit { width: 100%; border: 0; cursor: pointer; font-family: "Outfit", system-ui, sans-serif; border-radius: 18px; padding: 16px 18px; background: linear-gradient(135deg, var(--oa-primary), var(--oa-primary-dark)); color: #fff; font-size: 16px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 9px; box-shadow: 0 14px 34px rgba(29,203,222,.24); }
+  .oa-submit img { width: 21px; height: 21px; object-fit: contain; filter: brightness(0) invert(1); }
+  .oa-error { display: none; color: #b42318; background: #fff3f0; border: 1px solid rgba(180,35,24,.14); border-radius: 14px; padding: 10px 12px; font-size: 13px; font-weight: 700; line-height: 1.35; }
+  .oa-error.show { display: block; }
+
+  .oa-launch {
+    width: 72px;
+    height: 72px;
+    border: 0;
+    border-radius: 24px;
+    cursor: pointer;
+    background: linear-gradient(135deg, var(--oa-primary), var(--oa-primary-dark));
+    display: grid;
+    place-items: center;
+    position: relative;
+    isolation: isolate;
+    box-shadow: 0 18px 46px rgba(29, 203, 222, 0.38);
+    transition: 0.25s ease;
+  }
+
+  .oa-launch:hover {
+    transform: translateY(-4px) scale(1.04);
+  }
+
+  .oa-launch::before,
+  .oa-launch::after {
+    content: "";
+    position: absolute;
+    inset: -8px;
+    border-radius: 30px;
+    background: rgba(29, 203, 222, 0.2);
+    z-index: -1;
+    animation: oaPulse 2.5s ease-in-out infinite;
+  }
+
+  .oa-launch::after {
+    inset: -16px;
+    animation-delay: 0.55s;
+    background: rgba(29, 203, 222, 0.12);
+  }
+
+  #oa-root.is-open .oa-launch::before,
+  #oa-root.is-open .oa-launch::after {
+    display: none;
+  }
+
+  .oa-launch img {
+    width: 33px;
+    height: 33px;
+    object-fit: contain;
+    filter: brightness(0) invert(1);
+  }
+
+  @keyframes oaPulse {
+    0% { transform: scale(0.9); opacity: 0.75; }
+    70%, 100% { transform: scale(1.18); opacity: 0; }
+  }
+
+  @media (max-width: 640px) {
+    #oa-root {
+      left: 12px;
+      right: 12px;
+      bottom: 12px;
+      align-items: flex-end;
+    }
+
+    #oa-panel {
+      width: 100%;
+      border-radius: 26px;
+    }
+
+    .oa-body {
+      padding: 24px 20px 20px;
+    }
+
+    .oa-question {
+      font-size: 22px;
+    }
+
+    .oa-launch {
+      width: 64px;
+      height: 64px;
+      border-radius: 22px;
+    }
+
+    .oa-launch img {
+      width: 30px;
+      height: 30px;
+    }
+  }
+</style>
+
+<div id="oa-root" role="region" aria-label="Assistente virtual Odontoprime">
+  <div id="oa-panel" aria-live="polite">
+    <div class="oa-head">
+      <img class="oa-logo" src="assets/img/logo.png" alt="Odontoprime" />
+      <div class="oa-title-wrap">
+        <div class="oa-title">Assistente Odontoprime</div>
+        <div class="oa-status"><span class="oa-status-dot"></span>Online agora | Resposta rápida</div>
       </div>
-
-      <!-- Messages -->
-      <div
-        class="ai-assistant-messages"
-        id="ai-messages"
-        aria-live="polite"
-        aria-relevant="additions"
-      ></div>
-
-      <!-- Quick Reply Chips -->
-      <div
-        class="ai-assistant-chips"
-        id="ai-chips"
-        role="group"
-        aria-label="Opções rápidas"
-      ></div>
-
-      <!-- Footer -->
-      <div class="ai-assistant-footer">
-        <div class="ai-assistant-footer-brand">
-          Powered by <strong>Odontoprime IA</strong>
-        </div>
-        <button
-          class="ai-assistant-clear-btn"
-          id="ai-clear-btn"
-          aria-label="Limpar conversa"
-        >
-          🗑 Limpar
-        </button>
-      </div>
+      <button class="oa-close" type="button" id="oa-close" aria-label="Fechar chat">×</button>
     </div>
 
-    <script>
-      (function () {
-        "use strict";
+    <div class="oa-body">
+      <div class="oa-question" id="oa-question">Como podemos te ajudar hoje?</div>
+      <div class="oa-sub" id="oa-sub">Escolha uma opção para agilizar seu atendimento pelo WhatsApp.</div>
+      <div id="oa-content"></div>
+    </div>
+  </div>
 
-        /* ── CONFIG ── */
-        var PHONE = "553735225932";
-        var CLINIC = "Odontoprime";
-        var WA_MSG =
-          "Olá! Vim pelo site da " +
-          CLINIC +
-          " e gostaria de mais informações.";
-        var WA_URL =
-          "https://wa.me/" + PHONE + "?text=" + encodeURIComponent(WA_MSG);
+  <button class="oa-launch" type="button" id="oa-launch" aria-label="Abrir chat da Odontoprime" aria-expanded="false">
+    <img src="assets/img/whatsapp.png" alt="WhatsApp" />
+  </button>
+</div>
 
-        /* ── RESPOSTAS E CHIPS ── */
-        var FLOWS = {
-          inicio: {
-            chips: [
-              { label: "🩺 Especialidades médicas", key: "medicas" },
-              { label: "🦷 Odontologia", key: "odonto" },
-              { label: "🕐 Horários", key: "horario" },
-              { label: "📍 Endereço", key: "endereco" },
-              { label: "📅 Como agendar", key: "agendar" },
-              { label: "✅ O que oferece", key: "oferece" },
-              { label: "❌ O que não oferece", key: "naoferece" },
-              { label: "💬 Falar no WhatsApp", key: "whats", wa: true },
-            ],
-          },
-          medicas: {
-            texto:
-              "A Odontoprime conta com atendimento multidisciplinar em especialidades como <strong>Cardiologia, Clínico Geral, Dermatologia, Endocrinologia, Gastroenterologia, Ginecologia, Neurologia, Oftalmologia, Ortopedia, Otorrinolaringologia, Pediatria e Urologia</strong>, além de exames como Ultrassom, Eletrocardiograma e Exames Laboratoriais. 🩺",
-            chips: [
-              { label: "🦷 Odontologia", key: "odonto" },
-              { label: "📅 Como agendar", key: "agendar" },
-              { label: "💬 Falar no WhatsApp", key: "whats", wa: true },
-              { label: "🏠 Início", key: "__inicio" },
-            ],
-          },
-          odonto: {
-            texto:
-              "Na área odontológica, a Odontoprime oferece serviços como <strong>Prótese, Implantes, Odontopediatria, Ortodontia, Clínica Geral, Cirurgia, Periodontia e Avaliação Clínica</strong>. 😁",
-            chips: [
-              { label: "🩺 Especialidades médicas", key: "medicas" },
-              { label: "📅 Como agendar", key: "agendar" },
-              { label: "💬 Falar no WhatsApp", key: "whats", wa: true },
-              { label: "🏠 Início", key: "__inicio" },
-            ],
-          },
-          horario: {
-            texto:
-              "Para confirmar os horários atualizados de atendimento, recomendamos falar diretamente com nossa equipe pelo WhatsApp. Nossa recepção responde rápido! ⏰",
-            chips: [
-              { label: "💬 Falar no WhatsApp", key: "whats", wa: true },
-              { label: "📍 Endereço", key: "endereco" },
-              { label: "🏠 Início", key: "__inicio" },
-            ],
-          },
-          endereco: {
-            texto:
-              "A Odontoprime está localizada na <strong>R. Enfermeira Joana D'arc, nº 76 — Santa Efigênia, Bom Despacho/MG, CEP 35630-140</strong>. 📍",
-            chips: [
-              { label: "🗺 Ver no Google Maps", key: "__maps" },
-              { label: "💬 Falar no WhatsApp", key: "whats", wa: true },
-              { label: "🕐 Horários", key: "horario" },
-              { label: "🏠 Início", key: "__inicio" },
-            ],
-          },
-          agendar: {
-            texto:
-              "O agendamento é <strong>rápido e simples</strong>! Fale diretamente com nossa equipe pelo WhatsApp e escolha o melhor horário disponível. Clique no botão abaixo! 📅",
-            chips: [
-              { label: "💬 Agendar no WhatsApp", key: "whats", wa: true },
-              { label: "📍 Onde fica", key: "endereco" },
-              { label: "🏠 Início", key: "__inicio" },
-            ],
-          },
-          oferece: {
-            texto:
-              "A Odontoprime oferece: <strong>atendimento humanizado, estrutura moderna, diversas especialidades médicas, serviços odontológicos completos, exames e agendamento rápido pelo WhatsApp</strong>. Tudo pensado para o bem-estar da sua família! 💙",
-            chips: [
-              { label: "🩺 Especialidades médicas", key: "medicas" },
-              { label: "🦷 Odontologia", key: "odonto" },
-              { label: "💬 Falar no WhatsApp", key: "whats", wa: true },
-              { label: "🏠 Início", key: "__inicio" },
-            ],
-          },
-          naoferece: {
-            texto:
-              "Algumas informações específicas — como disponibilidade de profissionais, valores, convênios e procedimentos detalhados — devem ser confirmadas diretamente com a equipe da clínica pelo WhatsApp. Teremos prazer em te orientar! 😊",
-            chips: [
-              { label: "💬 Falar no WhatsApp", key: "whats", wa: true },
-              { label: "✅ O que oferece", key: "oferece" },
-              { label: "🏠 Início", key: "__inicio" },
-            ],
-          },
-        };
+<script>
+(function () {
+  var PHONE = "5537999565518";
+  var CLINIC = "Odontoprime";
 
-        /* ── ESTADO ── */
-        var isOpen = false;
+  var MEDICAL = [["🩺","Clínico Geral"],["❤️","Cardiologia"],["👶","Pediatria"],["🧠","Neurologia"],["🦴","Ortopedia"],["🌸","Ginecologia"],["👁️","Oftalmologia"],["👂","Otorrino"],["🧬","Endocrinologia"],["🧴","Dermatologia"],["🧘","Psiquiatria"],["🔊","Ultrassom"],["💓","Eletrocardiograma"],["🧪","Exames Laboratoriais"]];
+  var DENTAL = [["🦷","Avaliação Odontológica"],["😁","Ortodontia"],["✨","Clareamento"],["🔩","Implantes"],["🦷","Prótese"],["👶","Odontopediatria"],["⚕️","Cirurgia"],["🫦","Periodontia"]];
+  var TOPICS = [
+    ["⚡","Agendamento rápido","Veja como funciona o agendamento.","O agendamento é rápido e simples: escolha a especialidade desejada, informe seus dados e nossa equipe continua o atendimento pelo WhatsApp para confirmar disponibilidade e horário."],
+    ["📍","Endereço e localização","Veja onde fica a clínica.","A Odontoprime está localizada na R. Enfermeira Joana D'arc, nº 76 — Santa Efigênia, Bom Despacho/MG, CEP 35630-140."],
+    ["🕒","Horários de atendimento","Confira a orientação sobre horários.","Os horários podem variar conforme a especialidade e a agenda dos profissionais. Para confirmar disponibilidade atualizada, fale com a recepção pelo WhatsApp."],
+    ["💳","Valores e formas de pagamento","Entenda como consultar valores.","Valores, condições de pagamento e disponibilidade de procedimentos podem variar conforme avaliação, especialidade e profissional. A equipe informa tudo pelo WhatsApp com clareza antes do agendamento."],
+    ["🦷","Transformar meu sorriso","Estética, clareamento, lentes e ortodontia.","Para transformar seu sorriso, a Odontoprime conta com avaliação odontológica, ortodontia, clareamento, prótese, implantes e procedimentos estéticos conforme indicação profissional."],
+    ["🚨","Dor ou urgência","Veja o que fazer em caso de dor.","Em caso de dor, urgência ou desconforto, entre em contato pelo WhatsApp para a equipe orientar o melhor encaixe ou atendimento disponível."],
+    ["🩺","Especialidades médicas","Veja as principais áreas atendidas.","A Odontoprime conta com atendimento multidisciplinar em áreas como Clínico Geral, Cardiologia, Pediatria, Neurologia, Ortopedia, Ginecologia, Dermatologia, Endocrinologia, Oftalmologia, Otorrino, Psiquiatria, exames e outras especialidades."],
+    ["🦷","Odontologia","Veja os serviços odontológicos.","Na odontologia, a clínica oferece avaliação, clínica geral, ortodontia, clareamento, implantes, prótese, odontopediatria, cirurgia, periodontia e outros cuidados conforme avaliação."],
+    ["✅","O que a clínica oferece","Resumo dos atendimentos.","A Odontoprime oferece atendimento humanizado, estrutura moderna, especialidades médicas, odontologia completa, exames e agendamento rápido pelo WhatsApp."],
+    ["💬","Falar com a equipe","Tire sua dúvida diretamente.","Para dúvidas específicas, valores, agenda ou encaixe, nossa equipe pode continuar o atendimento pelo WhatsApp."],
+  ];
 
-        /* ── ELEMENTOS ── */
-        var fab = document.getElementById("ai-fab");
-        var win = document.getElementById("ai-window");
-        var msgs = document.getElementById("ai-messages");
-        var chipsEl = document.getElementById("ai-chips");
-        var closeBtn = document.getElementById("ai-close-btn");
-        var clearBtn = document.getElementById("ai-clear-btn");
+  var root = document.getElementById("oa-root");
+  var launch = document.getElementById("oa-launch");
+  var close = document.getElementById("oa-close");
+  var question = document.getElementById("oa-question");
+  var sub = document.getElementById("oa-sub");
+  var content = document.getElementById("oa-content");
 
-        /* ── HELPERS ── */
-        function openWA() {
-          window.open(WA_URL, "_blank", "noreferrer");
-        }
+  function waURL(message) { return "https://wa.me/" + PHONE + "?text=" + encodeURIComponent(message); }
+  function openWhats(message) { window.open(waURL(message), "_blank", "noreferrer"); }
+  function setHeader(title, subtitle) { question.textContent = title; sub.textContent = subtitle; }
+  function option(icon, title, desc, action) {
+    var btn = document.createElement("button");
+    btn.type = "button"; btn.className = "oa-option";
+    btn.innerHTML = '<span class="oa-icon">' + icon + '</span><span class="oa-text">' + title + '<small>' + desc + '</small></span>';
+    btn.addEventListener("click", action); return btn;
+  }
+  function showMain() {
+    setHeader("Como podemos te ajudar hoje?", "Escolha uma opção para agilizar seu atendimento pelo WhatsApp.");
+    content.innerHTML = "";
+    content.appendChild(option("🩺", "Consultas Médicas", "Escolha a especialidade e informe seus dados", function(){ showSpecialties("medical"); }));
+    content.appendChild(option("🦷", "Odontologia", "Tratamentos, estética e avaliação", function(){ showSpecialties("dental"); }));
+    content.appendChild(option("❔", "Dúvidas frequentes", "Localização, horários, valores, agendamento e urgência", showTopics));
+  }
+  function showSpecialties(type) {
+    var isMedical = type === "medical", list = isMedical ? MEDICAL : DENTAL;
+    setHeader(isMedical ? "Consultas Médicas" : "Odontologia", isMedical ? "Selecione a especialidade desejada." : "Selecione o atendimento odontológico desejado.");
+    content.innerHTML = "";
+    var head = document.createElement("div"); head.className = "oa-list-head"; head.innerHTML = '<div class="oa-list-title">Escolha uma opção</div>'; content.appendChild(head);
+    var grid = document.createElement("div"); grid.className = "oa-specialty-grid";
+    list.forEach(function(item){
+      var btn = document.createElement("button"); btn.type = "button"; btn.className = "oa-specialty"; btn.innerHTML = '<span>' + item[0] + '</span>' + item[1];
+      btn.addEventListener("click", function(){ showLeadForm(item[1], isMedical ? "consulta médica" : "atendimento odontológico", type); }); grid.appendChild(btn);
+    });
+    content.appendChild(grid); addBack(showMain);
+  }
+  function leadFormHTML(label) {
+    return '<div class="oa-selected">' + label + '</div>' +
+      '<div class="oa-field"><label for="oa-name">Seu nome</label><input class="oa-input" id="oa-name" type="text" placeholder="Digite seu nome" autocomplete="name" /></div>' +
+      '<div class="oa-field"><label for="oa-phone">Seu telefone</label><input class="oa-input" id="oa-phone" type="tel" placeholder="(37) 9 9999-9999" autocomplete="tel" inputmode="tel" /></div>' +
+      '<div class="oa-error" id="oa-error">Preencha seu nome e telefone para continuar.</div>' +
+      '<button class="oa-submit" type="submit">Continuar no WhatsApp <img src="assets/img/whatsapp.png" alt="WhatsApp" /></button>';
+  }
+  function getLeadOrShowError() {
+    var name = document.getElementById("oa-name").value.trim();
+    var phone = document.getElementById("oa-phone").value.trim();
+    var error = document.getElementById("oa-error");
+    if (!name || phone.replace(/\D/g, "").length < 8) { error.classList.add("show"); return null; }
+    return { name: name, phone: phone };
+  }
+  function showLeadForm(specialty, category, type) {
+    setHeader("Quase pronto", "Informe seu nome e telefone para direcionarmos seu atendimento pelo WhatsApp."); content.innerHTML = "";
+    var form = document.createElement("form"); form.className = "oa-lead-form"; form.innerHTML = leadFormHTML(specialty);
+    form.addEventListener("submit", function(event){
+      event.preventDefault(); var lead = getLeadOrShowError(); if (!lead) return;
+      openWhats("Olá! Vim pelo site da " + CLINIC + " e gostaria de agendar " + category + " em " + specialty + ".\n\nNome: " + lead.name + "\nTelefone: " + lead.phone + "\n\nPoderiam me informar os horários disponíveis?");
+    });
+    content.appendChild(form); addBack(function(){ showSpecialties(type); });
+  }
+  function showTopics() {
+    setHeader("Dúvidas frequentes", "Escolha uma dúvida para ver a informação na hora."); content.innerHTML = "";
+    var grid = document.createElement("div"); grid.className = "oa-topic-grid";
+    TOPICS.forEach(function(item){
+      var btn = document.createElement("button"); btn.type = "button"; btn.className = "oa-topic"; btn.innerHTML = '<span>' + item[0] + '</span>' + item[1];
+      btn.addEventListener("click", function(){ showTopicInfo(item[0], item[1], item[3], item[2]); }); grid.appendChild(btn);
+    });
+    content.appendChild(grid); addBack(showMain);
+  }
+  function showTopicInfo(icon, topic, info, subtitle) {
+    setHeader(topic, subtitle || "Informação rápida para você."); content.innerHTML = "";
+    var card = document.createElement("div");
+    card.className = "oa-info-card";
+    card.innerHTML = '<div class="oa-info-icon">' + icon + '</div><div class="oa-info-text">' + info + '</div>';
+    content.appendChild(card);
 
-        function openMaps() {
-          window.open(
-            "https://www.google.com/maps?q=Rua+Enfermeira+Joana+D%27Arc,+76,+Santa+Efig%C3%AAnia,+Bom+Despacho+-+MG",
-            "_blank",
-            "noreferrer",
-          );
-        }
+    var waBtn = document.createElement("button");
+    waBtn.type = "button";
+    waBtn.className = "oa-submit";
+    waBtn.innerHTML = 'Continuar pelo WhatsApp <img src="assets/img/whatsapp.png" alt="WhatsApp" />';
+    waBtn.addEventListener("click", function(){ showTopicLead(topic, "Gostaria de mais informações sobre: " + topic); });
+    content.appendChild(waBtn);
 
-        function scrollToBottom() {
-          setTimeout(function () {
-            msgs.scrollTop = msgs.scrollHeight;
-          }, 60);
-        }
+    addBack(showTopics);
+  }
 
-        function addMessage(html, isUser) {
-          var row = document.createElement("div");
-          row.className =
-            "ai-msg " + (isUser ? "ai-msg-user-row" : "ai-msg-bot-row");
-          var bubble = document.createElement("div");
-          bubble.className =
-            "ai-bubble " + (isUser ? "ai-bubble-user" : "ai-bubble-bot");
-          bubble.innerHTML = html;
-          row.appendChild(bubble);
-          msgs.appendChild(row);
-          scrollToBottom();
-          return row;
-        }
+  function showTopicLead(topic, message) {
+    setHeader(topic, "Informe seu nome e telefone para continuarmos pelo WhatsApp."); content.innerHTML = "";
+    var form = document.createElement("form"); form.className = "oa-lead-form"; form.innerHTML = leadFormHTML(topic);
+    form.addEventListener("submit", function(event){
+      event.preventDefault(); var lead = getLeadOrShowError(); if (!lead) return;
+      openWhats("Olá! Vim pelo site da " + CLINIC + ".\n\nAssunto: " + topic + "\nNome: " + lead.name + "\nTelefone: " + lead.phone + "\n\n" + message);
+    });
+    content.appendChild(form); addBack(showTopics);
+  }
+  function addBack(action) { var back = document.createElement("button"); back.type = "button"; back.className = "oa-back"; back.textContent = "← Voltar"; back.addEventListener("click", action); content.appendChild(back); }
+  function openChat(){ root.classList.add("is-open"); launch.setAttribute("aria-expanded", "true"); }
+  function closeChat(){ root.classList.remove("is-open"); launch.setAttribute("aria-expanded", "false"); }
+  launch.addEventListener("click", function(){ root.classList.contains("is-open") ? closeChat() : openChat(); });
+  close.addEventListener("click", closeChat);
+  document.addEventListener("keydown", function(event){ if (event.key === "Escape") closeChat(); });
+  showMain();
+  var oldFloatWhats = document.querySelector(".float-wa"); if (oldFloatWhats && oldFloatWhats.parentNode) oldFloatWhats.parentNode.removeChild(oldFloatWhats);
+  var toTop = document.querySelector(".to-top"); if (toTop) toTop.style.bottom = "112px";
+})();
+</script>
 
-        function showTyping(cb) {
-          var row = document.createElement("div");
-          row.className = "ai-msg ai-msg-bot-row";
-          var t = document.createElement("div");
-          t.className = "ai-typing";
-          t.innerHTML = "<span></span><span></span><span></span>";
-          row.appendChild(t);
-          msgs.appendChild(row);
-          scrollToBottom();
-          setTimeout(function () {
-            if (row.parentNode) row.parentNode.removeChild(row);
-            cb();
-          }, 820);
-        }
-
-        function renderChips(chipList) {
-          chipsEl.innerHTML = "";
-          chipList.forEach(function (c) {
-            var btn = document.createElement("button");
-            btn.className = "ai-chip" + (c.wa ? " ai-chip-wa" : "");
-            btn.textContent = c.label;
-            btn.addEventListener("click", function () {
-              handleChip(c);
-            });
-            chipsEl.appendChild(btn);
-          });
-        }
-
-        function handleChip(chip) {
-          if (chip.key === "whats") {
-            addMessage(chip.label, true);
-            showTyping(function () {
-              addMessage(
-                "Abrindo o WhatsApp para você falar com nossa equipe agora! 💬",
-                false,
-              );
-              renderChips(FLOWS.inicio.chips);
-              openWA();
-            });
-            return;
-          }
-          if (chip.key === "__inicio") {
-            addMessage(chip.label, true);
-            showTyping(function () {
-              addMessage("Claro! O que mais posso te ajudar? 😊", false);
-              renderChips(FLOWS.inicio.chips);
-            });
-            return;
-          }
-          if (chip.key === "__maps") {
-            addMessage(chip.label, true);
-            showTyping(function () {
-              addMessage(
-                "Abrindo o Google Maps com nossa localização! 🗺",
-                false,
-              );
-              renderChips(FLOWS.endereco.chips);
-              openMaps();
-            });
-            return;
-          }
-          var flow = FLOWS[chip.key];
-          if (!flow) return;
-          addMessage(chip.label, true);
-          chipsEl.innerHTML = "";
-          showTyping(function () {
-            addMessage(flow.texto, false);
-            renderChips(flow.chips);
-          });
-        }
-
-        function initChat() {
-          msgs.innerHTML = "";
-          chipsEl.innerHTML = "";
-          showTyping(function () {
-            addMessage(
-              "Olá! Sou a assistente virtual da <strong>" +
-                CLINIC +
-                "</strong>. Como posso te ajudar hoje? 😊",
-              false,
-            );
-            renderChips(FLOWS.inicio.chips);
-          });
-        }
-
-        /* ── ABRIR / FECHAR ── */
-        function openChat() {
-          isOpen = true;
-          win.classList.add("ai-open");
-          fab.setAttribute("aria-expanded", "true");
-          fab.querySelector("svg").style.transform = "scale(0)";
-          fab.style.background =
-            "linear-gradient(135deg, #04111a 0%, #0d2535 100%)";
-          /* Mostrar ícone X no FAB */
-          fab.querySelector(".ai-assistant-fab-pulse").style.display = "none";
-          if (msgs.children.length === 0) initChat();
-          setTimeout(function () {
-            var el = win.querySelector("#ai-messages .ai-msg:last-child");
-            if (el) el.scrollIntoView({ behavior: "smooth" });
-          }, 400);
-        }
-
-        function closeChat() {
-          isOpen = false;
-          win.classList.remove("ai-open");
-          fab.setAttribute("aria-expanded", "false");
-          fab.querySelector("svg").style.transform = "scale(1)";
-          fab.style.background =
-            "linear-gradient(135deg, #1dcbde 0%, #0ea5b8 100%)";
-          fab.querySelector(".ai-assistant-fab-pulse").style.display = "";
-        }
-
-        fab.addEventListener("click", function () {
-          isOpen ? closeChat() : openChat();
-        });
-        closeBtn.addEventListener("click", closeChat);
-        clearBtn.addEventListener("click", function () {
-          msgs.innerHTML = "";
-          chipsEl.innerHTML = "";
-          initChat();
-        });
-
-        /* Fechar ao pressionar ESC */
-        document.addEventListener("keydown", function (e) {
-          if (e.key === "Escape" && isOpen) closeChat();
-        });
-
-        /* ── SUBSTITUIR O BOTÃO FLUTUANTE DE WHATSAPP EXISTENTE ── */
-        /* Remove o botão float-wa original e o to-top que estava ao lado */
-        var existingWa = document.querySelector(".float-wa");
-        if (existingWa) {
-          /* Reposicionar o botão to-top pois o whatsapp sumiu */
-          var toTop = document.querySelector(".to-top");
-          if (toTop) {
-            toTop.style.bottom = "28px";
-          }
-          existingWa.parentNode.removeChild(existingWa);
-        }
-      })();
-    </script>
     <!-- ══════════ FIM ASSISTENTE VIRTUAL ══════════ -->
   </body>
 </html>
