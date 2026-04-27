@@ -5058,5 +5058,233 @@
 })();
 </script>
 
+
+<!-- PATCH URGENTE MOBILE TOUCH — Odontoprime
+     Corrige camada invisível do chatbot bloqueando cliques e estabiliza swipe dos carrosséis. -->
+<style id="odontoprime-mobile-touch-emergency-v2">
+  /* 1) O root do chatbot não pode capturar toque quando fechado */
+  #oa-root {
+    pointer-events: none !important;
+  }
+
+  #oa-root .oa-launch {
+    pointer-events: auto !important;
+    touch-action: manipulation !important;
+  }
+
+  /* Painel fechado: invisível de verdade e sem capturar clique */
+  #oa-panel {
+    pointer-events: none !important;
+    visibility: hidden !important;
+  }
+
+  /* Painel aberto: aí sim recebe toque */
+  #oa-root.is-open #oa-panel {
+    pointer-events: auto !important;
+    visibility: visible !important;
+  }
+
+  #oa-root.is-open #oa-panel *,
+  #oa-root.is-open button,
+  #oa-root.is-open a,
+  #oa-root.is-open input {
+    pointer-events: auto !important;
+  }
+
+  /* 2) No mobile, chatbot fechado ocupa só o tamanho do botão, não a tela inteira */
+  @media (max-width: 640px) {
+    #oa-root {
+      left: auto !important;
+      right: 12px !important;
+      bottom: 12px !important;
+      width: auto !important;
+      max-width: none !important;
+      align-items: flex-end !important;
+    }
+
+    #oa-root.is-open {
+      left: 12px !important;
+      right: 12px !important;
+      width: auto !important;
+      max-width: none !important;
+    }
+
+    #oa-root:not(.is-open) #oa-panel {
+      display: none !important;
+    }
+
+    #oa-root.is-open #oa-panel {
+      display: flex !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      max-height: calc(100svh - 92px) !important;
+    }
+
+    #oa-root:not(.is-open) .oa-launch {
+      display: grid !important;
+    }
+  }
+
+  /* 3) Qualquer backdrop/menu fechado fica proibido de bloquear toque */
+  .menu-backdrop:not(.show),
+  .menu-backdrop[aria-hidden="true"] {
+    display: none !important;
+    pointer-events: none !important;
+  }
+
+  /* 4) Links e botões sempre tocáveis */
+  a,
+  button,
+  [role="button"],
+  .btn,
+  .icon-btn,
+  .carousel-btn,
+  .odf-arrow,
+  .cdot,
+  .odf-dot,
+  .carousel-item--clickable {
+    pointer-events: auto;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* 5) Carrossel: permite scroll vertical da página e swipe horizontal do carrossel */
+  .carousel-track-wrapper,
+  .odf-carousel-track-wrap {
+    pointer-events: auto !important;
+    touch-action: pan-y !important;
+    -webkit-overflow-scrolling: touch;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .carousel-track,
+  .odf-carousel-track {
+    pointer-events: auto !important;
+    will-change: transform;
+  }
+</style>
+
+<script id="odontoprime-mobile-touch-emergency-v2-script">
+(function () {
+  function ready(fn) {
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", fn);
+    else fn();
+  }
+
+  function point(e) {
+    if (e.touches && e.touches.length) return e.touches[0];
+    if (e.changedTouches && e.changedTouches.length) return e.changedTouches[0];
+    return e;
+  }
+
+  function enableCleanSwipe(wrapperId, prevId, nextId) {
+    var wrapper = document.getElementById(wrapperId);
+    var prev = document.getElementById(prevId);
+    var next = document.getElementById(nextId);
+
+    if (!wrapper || !prev || !next) return;
+
+    /* Remove efeito dos patches antigos sem precisar apagar o código anterior */
+    wrapper.dataset.swipeReady = "1";
+    wrapper.dataset.finalSwipe = "1";
+
+    var startX = 0;
+    var startY = 0;
+    var tracking = false;
+    var swiped = false;
+
+    function start(e) {
+      var p = point(e);
+      startX = p.clientX;
+      startY = p.clientY;
+      tracking = true;
+      swiped = false;
+      wrapper.classList.add("is-dragging");
+    }
+
+    function move(e) {
+      if (!tracking) return;
+
+      var p = point(e);
+      var dx = p.clientX - startX;
+      var dy = p.clientY - startY;
+
+      if (Math.abs(dx) > 12 && Math.abs(dx) > Math.abs(dy) * 1.25) {
+        swiped = true;
+        if (e.cancelable) e.preventDefault();
+      }
+    }
+
+    function end(e) {
+      if (!tracking) return;
+
+      tracking = false;
+      wrapper.classList.remove("is-dragging");
+
+      var p = point(e);
+      var dx = p.clientX - startX;
+      var dy = p.clientY - startY;
+
+      if (Math.abs(dx) > 42 && Math.abs(dx) > Math.abs(dy) * 1.25) {
+        if (dx < 0) next.click();
+        else prev.click();
+      }
+
+      setTimeout(function () {
+        swiped = false;
+      }, 90);
+    }
+
+    wrapper.addEventListener("touchstart", start, { passive: true });
+    wrapper.addEventListener("touchmove", move, { passive: false });
+    wrapper.addEventListener("touchend", end, { passive: true });
+    wrapper.addEventListener("touchcancel", end, { passive: true });
+
+    /* Não deixa um swipe virar clique acidental, mas mantém clique normal funcionando */
+    wrapper.addEventListener(
+      "click",
+      function (e) {
+        if (swiped) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+      },
+      true
+    );
+  }
+
+  ready(function () {
+    enableCleanSwipe("specsWrapper", "specsPrev", "specsNext");
+    enableCleanSwipe("odontoWrapper", "odontoPrev", "odontoNext");
+    enableCleanSwipe("odfTrackWrap", "odfPrev", "odfNext");
+
+    /* Garante WhatsApp nos CTAs principais */
+    var phone = "553735225932";
+    var msg = encodeURIComponent("Olá! Quero agendar um atendimento na Odontoprime.");
+    var link = "https://wa.me/" + phone + "?text=" + msg;
+
+    [
+      "whatsHeader",
+      "whatsHeaderBtn",
+      "whatsHero",
+      "whatsFooter",
+      "whatsFooterCta",
+      "whatsSpecs",
+      "whatsMap",
+      "whatsFloat",
+      "whatsOdonto"
+    ].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) {
+        el.setAttribute("href", link);
+        el.setAttribute("target", "_blank");
+        el.setAttribute("rel", "noopener");
+      }
+    });
+  });
+})();
+</script>
+
 </body>
 </html>
