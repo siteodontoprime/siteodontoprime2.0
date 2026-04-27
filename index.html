@@ -4360,6 +4360,39 @@
       height: 30px;
     }
   }
+
+
+/* ═══ Correção mobile: botão voltar visível + carrosséis arrastáveis ═══ */
+#oa-content > .oa-back:first-child{
+  margin-top:0;
+  margin-bottom:2px;
+  position:relative;
+  z-index:3;
+}
+.carousel-track-wrapper,
+.odf-carousel-track-wrap{
+  touch-action:pan-y;
+  cursor:grab;
+  -webkit-user-select:none;
+  user-select:none;
+}
+.carousel-track-wrapper:active,
+.odf-carousel-track-wrap:active{
+  cursor:grabbing;
+}
+.carousel-track,
+.odf-carousel-track{
+  will-change:transform;
+}
+@media(max-width:640px){
+  #oa-content > .oa-back:first-child{
+    position:sticky;
+    top:0;
+    background:#f4f9fb;
+    box-shadow:0 8px 18px rgba(4,17,26,.05);
+  }
+}
+
 </style>
 
 <div id="oa-root" role="region" aria-label="Assistente virtual Odontoprime">
@@ -4438,7 +4471,8 @@
       var btn = document.createElement("button"); btn.type = "button"; btn.className = "oa-specialty"; btn.innerHTML = '<span>' + item[0] + '</span>' + item[1];
       btn.addEventListener("click", function(){ showLeadForm(item[1], isMedical ? "consulta médica" : "atendimento odontológico", type); }); grid.appendChild(btn);
     });
-    content.appendChild(grid); addBack(showMain);
+    addBack(showMain);
+    content.appendChild(grid);
   }
   function leadFormHTML(label) {
     return '<div class="oa-selected">' + label + '</div>' +
@@ -4511,5 +4545,85 @@
 </script>
 
     <!-- ══════════ FIM ASSISTENTE VIRTUAL ══════════ -->
-  </body>
+  
+
+<script>
+/* Correção: swipe/arraste horizontal nos carrosséis no mobile e desktop */
+(function(){
+  function enableCarouselSwipe(wrapperId, prevId, nextId){
+    var wrapper = document.getElementById(wrapperId);
+    var prev = document.getElementById(prevId);
+    var next = document.getElementById(nextId);
+    if(!wrapper || !prev || !next || wrapper.dataset.swipeReady === "1") return;
+    wrapper.dataset.swipeReady = "1";
+
+    var startX = 0;
+    var startY = 0;
+    var dragging = false;
+    var moved = false;
+
+    function getPoint(e){
+      if(e.touches && e.touches.length) return e.touches[0];
+      if(e.changedTouches && e.changedTouches.length) return e.changedTouches[0];
+      return e;
+    }
+
+    function start(e){
+      var p = getPoint(e);
+      startX = p.clientX;
+      startY = p.clientY;
+      dragging = true;
+      moved = false;
+    }
+
+    function move(e){
+      if(!dragging) return;
+      var p = getPoint(e);
+      var dx = p.clientX - startX;
+      var dy = p.clientY - startY;
+      if(Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy)){
+        moved = true;
+        if(e.cancelable) e.preventDefault();
+      }
+    }
+
+    function end(e){
+      if(!dragging) return;
+      dragging = false;
+      var p = getPoint(e);
+      var dx = p.clientX - startX;
+      var dy = p.clientY - startY;
+      if(Math.abs(dx) > 38 && Math.abs(dx) > Math.abs(dy)){
+        if(dx < 0) next.click();
+        else prev.click();
+      }
+      setTimeout(function(){ moved = false; }, 0);
+    }
+
+    wrapper.addEventListener("touchstart", start, {passive:true});
+    wrapper.addEventListener("touchmove", move, {passive:false});
+    wrapper.addEventListener("touchend", end, {passive:true});
+    wrapper.addEventListener("mousedown", start);
+    wrapper.addEventListener("mousemove", move);
+    window.addEventListener("mouseup", end);
+    wrapper.addEventListener("click", function(e){
+      if(moved){
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    }, true);
+  }
+
+  function initSwipeFix(){
+    enableCarouselSwipe("specsWrapper", "specsPrev", "specsNext");
+    enableCarouselSwipe("odontoWrapper", "odontoPrev", "odontoNext");
+    enableCarouselSwipe("odfTrackWrap", "odfPrev", "odfNext");
+  }
+
+  if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", initSwipeFix);
+  else initSwipeFix();
+})();
+</script>
+
+</body>
 </html>
