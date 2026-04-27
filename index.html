@@ -3,40 +3,26 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-
     <title>Odontoprime | Clínica Multimédica — Bom Despacho/MG</title>
-
     <meta
       name="description"
       content="Odontoprime: clínica multimédica em Bom Despacho/MG com atendimento humanizado, estrutura moderna e agendamento rápido pelo WhatsApp. Odontologia, cardiologia, pediatria e muito mais."
     />
-
     <meta
       name="keywords"
       content="clínica médica bom despacho, odontologia bom despacho, dentista bom despacho, clínica multimédica MG"
     />
-
     <meta
       property="og:title"
       content="Odontoprime | Clínica Multimédica — Bom Despacho/MG"
     />
-
     <meta
       property="og:description"
       content="Atendimento humanizado, estrutura moderna e agendamento rápido. Sua saúde em boas mãos."
     />
-
     <meta property="og:type" content="website" />
-
-    <!-- FAVICON -->
-    <link rel="icon" type="image/png" href="assets/favicon.png" />
-    <link rel="shortcut icon" href="assets/favicon.png" />
-    <link rel="apple-touch-icon" href="assets/favicon.png" />
-
-    <!-- FONTES -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-
     <link
       href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;0,900;1,700;1,800&family=Outfit:wght@300;400;500;600;700&display=swap"
       rel="stylesheet"
@@ -4321,11 +4307,42 @@
 
     #oa-panel {
       width: 100%;
+      max-height: calc(100svh - 24px);
       border-radius: 26px;
+      display: flex;
+      flex-direction: column;
     }
 
     .oa-body {
       padding: 24px 20px 20px;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+      max-height: calc(100svh - 128px);
+    }
+
+    .oa-body::-webkit-scrollbar,
+    .oa-specialty-grid::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .oa-body::-webkit-scrollbar-thumb,
+    .oa-specialty-grid::-webkit-scrollbar-thumb {
+      background: rgba(29, 203, 222, 0.35);
+      border-radius: 999px;
+    }
+
+    #oa-content {
+      min-height: 0;
+    }
+
+    .oa-specialty-grid {
+      max-height: calc(100svh - 270px);
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+      padding-right: 4px;
+      padding-bottom: 8px;
     }
 
     .oa-question {
